@@ -106,3 +106,11 @@ venv.bak/
 # ide
 .vscode
 .idea
+
+# rust
+**/target
+**/*.rs.bk
+**/Cargo.lock
+**/bin/
+**/pkg/
+**/wasm-pack.log

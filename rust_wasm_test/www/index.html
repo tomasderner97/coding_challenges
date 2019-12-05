@@ -9,10 +9,8 @@
     import {reverse, default as init} from "../pkg/rust_wasm_test.js"
 
     (async () => {
-        let res = await init();
-        window.memory = res.memory;
+        window.memory = (await init()).memory;
         window.reverse = reverse;
-        console.log(res);
     })();
 </script>
 </body>

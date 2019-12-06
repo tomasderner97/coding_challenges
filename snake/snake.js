@@ -1,34 +1,46 @@
-const CELL_SIDE = 10;
-const ROWS = 50;
-const COLS = 50;
+class Snake {
+    constructor(firstBodyPart) {
+        this.head = firstBodyPart;
+        this.bodyParts = new Set([firstBodyPart.value]);
+        this.alive = true;
+        this.direction = Directions.up
+    }
 
-const app = new PIXI.Application({
-    width: CELL_SIDE * COLS,
-    height: CELL_SIDE * ROWS,
-});
-document.body.appendChild(app.view);
+    set_world(world) {
+        this.world = world;
+    }
 
-const graphics = new PIXI.Graphics().lineStyle(0).beginFill(0xffffff).drawRect(0, 0, 1, 1).endFill();
-const texture = app.renderer.generateTexture(graphics);
+    move() {
+        const nextCell = this.head.cellInDirection(this.direction);
+        let foundFood = false;
 
-const points = [];
-
-console.log(points);
-app.ticker.add((delta) => {
-    _.times(100, () => {
-        let point;
-        while (true) {
-            point = [Math.floor(Math.random() * CELL_SIDE * ROWS), Math.floor(Math.random() * CELL_SIDE * COLS)];
-            if (_.findIndex(points, point) < 0) break;
-            // console.log(point);
+        if (this.world.is_collision(nextCell)) {
+            this.alive = false;
+            console.log("Snake died");
+        } else if (this.world.is_food(nextCell)) {
+            foundFood = true;
         }
 
-        let sprite = new PIXI.Sprite(texture);
-        sprite.x = point[0];
-        sprite.y = point[1];
-        app.stage.addChild(sprite);
+        this.set_head(nextCell);
+        if (!foundFood) {
+            this.drop_tail();
+        }
+    }
 
-        points.push(point);
-    });
+    set_head(cell) {
+        this.head = cell;
+        this.bodyParts.add(cell.value);
+    }
 
-});
+    drop_tail() {
+        this.bodyParts.delete(this.bodyParts.values().next().value)
+    }
+
+    turn_left() {
+        this.direction = (this.direction + 4 - 1) % 4
+    }
+
+    turn_right() {
+        this.direction = (this.direction + 4 + 1) % 4
+    }
+}

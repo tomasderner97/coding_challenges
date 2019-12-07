@@ -7,41 +7,56 @@ const app = new PIXI.Application({
     height: CELL_SIDE * ROWS,
 });
 app.ticker.minFPS = 0;
-app.ticker.maxFPS = 0;
+app.ticker.maxFPS = 4;
 document.body.appendChild(app.view);
 
 const graphics = new PIXI.Graphics();
 app.stage.addChild(graphics);
 
 const world = new World(ROWS, COLS);
-world.add_snake(new Snake(new Cell(world, 25, 24)));
+const snake = new Snake(new Cell(world, 25, 24));
+world.add_snake(snake);
 
-_.times(100, () => {
-    world.add_food(
-        new Cell(
-            world,
-            Math.floor(Math.random() * ROWS),
-            Math.floor(Math.random() * COLS)
-        )
-    );
+_.times(10, () => {
+    world.add_food_random();
 });
 
 let directionChanged = false;
 
+function keyPressed(key) {
+    if (directionChanged) {
+        console.log("direction already changed in this iteration");
+        return;
+    }
+    if (key.keyCode > 40 || key.keyCode < 37) {
+        console.log("invalid key");
+        return;
+    }
+    key = (key.keyCode - 38 + 4) % 4;
+    console.log(key);
+    if (Math.abs(snake.direction - key) % 2 === 0) {
+        console.log("invalid turn");
+        return;
+    }
+    snake.direction = key;
+}
+
 function update(delta) {
+    world.tick();
+
     graphics.clear();
     graphics.beginFill(0xaaaaaa);
 
-    let turn = Math.random() > 0.9;
-    if (turn) {
-        if (Math.random() >= 0.5) {
-            world.snakes[0].turn_left();
-            // console.log("turning left");
-        } else {
-            world.snakes[0].turn_right();
-            // console.log("turning right");
-        }
-    }
+    // let turn = Math.random() > 0.9;
+    // if (turn) {
+    //     if (Math.random() >= 0.5) {
+    //         world.snakes[0].turn_left();
+    //         // console.log("turning left");
+    //     } else {
+    //         world.snakes[0].turn_right();
+    //         // console.log("turning right");
+    //     }
+    // }
 
     for (let s of world.snakes) {
         for (let bp of s.bodyParts) {
@@ -67,9 +82,11 @@ function update(delta) {
     }
     graphics.endFill();
 
-    world.tick();
+    directionChanged = false;
 }
 
-document.getElementById("step-button").addEventListener("click", update);
-// app.ticker.add(update);
+const stepButton = document.getElementById("step-button");
+stepButton.addEventListener("click", update);
+document.addEventListener("keydown", keyPressed);
+app.ticker.add(update);
 

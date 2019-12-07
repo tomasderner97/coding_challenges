@@ -19,6 +19,8 @@ class Snake {
             console.log("Snake died");
         } else if (this.world.is_food(nextCell)) {
             foundFood = true;
+            this.world.remove_food(nextCell);
+            this.world.add_food_random();
         }
 
         this.set_head(nextCell);

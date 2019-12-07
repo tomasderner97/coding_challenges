@@ -17,6 +17,20 @@ class World {
         this.foods.add(cell.value);
     }
 
+    add_food_random() {
+        this.add_food(
+            new Cell(
+                this,
+                Math.floor(Math.random() * this.width),
+                Math.floor(Math.random() * this.height)
+            )
+        );
+    }
+
+    remove_food(cell) {
+        this.foods.delete(cell.value);
+    }
+
     is_food(cell) {
         return this.foods.has(cell.value);
     }
